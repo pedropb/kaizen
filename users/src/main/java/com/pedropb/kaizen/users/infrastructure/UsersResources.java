@@ -6,6 +6,6 @@ public class UsersResources implements Resource {
 
     @Override
     public void configure() {
-        get("/hello", (req, res) -> "Hello World");
+        get("/", (req, res) -> "Hello World");
     }
 }

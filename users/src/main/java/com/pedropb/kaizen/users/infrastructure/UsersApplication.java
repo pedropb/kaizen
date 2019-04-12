@@ -1,14 +1,22 @@
 package com.pedropb.kaizen.users.infrastructure;
 
+import com.google.inject.Guice;
 
 public class UsersApplication {
 
-    private static void run() {
-        SparkServer spark = new SparkServer();
+    private final SparkServer spark;
+
+    public UsersApplication(SparkServer sparkServer) {
+        spark = sparkServer;
+    }
+
+    public void configure() {
         spark.register(new UsersResources());
+        Guice.createInjector(new UsersModule());
     }
 
     public static void main(String[] args) {
-        run();
+        UsersApplication app = new UsersApplication(new SparkServer());
+        app.configure();
     }
 }
