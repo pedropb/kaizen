@@ -8,6 +8,8 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <h2.database.url>jdbc:h2:${project.basedir}/target/jooq</h2.database.url>
+        <h2.database.user>jooq-generate</h2.database.user>
     </properties>
 
     <dependencies>
@@ -48,6 +50,30 @@
             <version>1.6.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.11.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>3.11.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>3.11.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+
 
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -58,16 +84,9 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
+            <version>5.5.0-M1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -75,6 +94,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.197</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -83,6 +107,72 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12.4</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>4.0</version>
+
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <url>${h2.database.url};INIT=CREATE SCHEMA IF NOT EXISTS jooq\; SET SCHEMA jooq</url>
+                    <user>${h2.database.user}</user>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>3.11.9</version>
+
+                <!-- The jOOQ code generation plugin is also executed in the generate-sources phase, prior to compilation -->
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <!-- This is a minimal working configuration. See the manual's section about the code generator for more details -->
+                <configuration>
+                    <jdbc>
+                        <url>${h2.database.url}</url>
+                        <user>${h2.database.user}</user>
+                    </jdbc>
+                    <generator>
+                        <database>
+                            <includes>.*</includes>
+                            <inputSchema>JOOQ</inputSchema>
+                        </database>
+                        <target>
+                            <packageName>infrastructure.sql.generated</packageName>
+                            <directory>target/generated-sources/jooq-h2</directory>
+                        </target>
+                        <generate>
+                            <javaTimeTypes>true</javaTimeTypes>
+                        </generate>
+                    </generator>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>1.4.197</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
