@@ -13,7 +13,7 @@ import java.util.List;
 public class JooqUsersRepository implements UsersRepository {
 
     @Inject
-    public JooqUsersRepository() {
+    public JooqUsersRepository(DataSource dataSource) {
 
     }
 

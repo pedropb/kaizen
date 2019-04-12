@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import spark.Spark;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -15,7 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
 class UsersApplicationIntegrationTest {
 
     @BeforeAll
-    static void setup() throws IOException {
+    static void setup() throws IOException, PropertyVetoException {
         int port = new ServerSocket(0).getLocalPort();
         Spark.port(port);
         RestAssured.port = port;

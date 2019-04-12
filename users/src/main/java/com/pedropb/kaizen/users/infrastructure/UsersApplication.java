@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import spark.Spark;
 
+import java.beans.PropertyVetoException;
 import java.util.Arrays;
 
 public class UsersApplication {
@@ -13,8 +14,8 @@ public class UsersApplication {
               .forEach(Resource::configure);
     }
 
-    public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new UsersModule());
+    public static void main(String[] args) throws PropertyVetoException {
+        Injector injector = Guice.createInjector(new UsersModule(), new PersistenceModule());
         registerResources(injector.getInstance(UsersResources.class));
         Spark.init();
     }

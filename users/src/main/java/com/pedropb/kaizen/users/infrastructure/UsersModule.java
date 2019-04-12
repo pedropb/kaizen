@@ -13,6 +13,5 @@ public class UsersModule extends AbstractModule {
         bind(UsersResources.class);
 
         bind(UsersRepository.class).to(JooqUsersRepository.class);
-//        bind(DataSource.class).toInstance();
     }
 }
