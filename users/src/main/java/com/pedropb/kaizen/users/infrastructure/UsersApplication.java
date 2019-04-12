@@ -1,22 +1,19 @@
 package com.pedropb.kaizen.users.infrastructure;
 
 import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import java.util.Arrays;
 
 public class UsersApplication {
 
-    private final SparkServer spark;
-
-    public UsersApplication(SparkServer sparkServer) {
-        spark = sparkServer;
-    }
-
-    public void configure() {
-        spark.register(new UsersResources());
-        Guice.createInjector(new UsersModule());
+    public static void registerResources(Resource... resources) {
+        Arrays.stream(resources)
+              .forEach(Resource::configure);
     }
 
     public static void main(String[] args) {
-        UsersApplication app = new UsersApplication(new SparkServer());
-        app.configure();
+        Injector injector = Guice.createInjector(new UsersModule());
+        registerResources(injector.getInstance(UsersResources.class));
     }
 }
