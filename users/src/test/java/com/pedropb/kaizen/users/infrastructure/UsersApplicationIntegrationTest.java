@@ -12,10 +12,10 @@ import java.net.ServerSocket;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.hasSize;
 
-public class UsersApplicationIntegrationTest {
+class UsersApplicationIntegrationTest {
 
     @BeforeAll
-    public static void setup() throws IOException {
+    static void setup() throws IOException {
         int port = new ServerSocket(0).getLocalPort();
         Spark.port(port);
         RestAssured.port = port;
@@ -26,12 +26,12 @@ public class UsersApplicationIntegrationTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Spark.stop();
     }
 
     @Test
-    public void get_root_path_returns_200_and_empty_array() {
+    void get_root_path_returns_200_and_empty_array() {
         when().get("/").then().statusCode(200).body("$", hasSize(0));
     }
 }

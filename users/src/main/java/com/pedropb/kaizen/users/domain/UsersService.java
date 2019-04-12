@@ -1,10 +1,18 @@
 package com.pedropb.kaizen.users.domain;
 
-import java.util.Collections;
+import javax.inject.Inject;
 import java.util.List;
 
 public class UsersService {
-    public List<Object> listUsers() {
-        return Collections.emptyList();
+
+    private final UsersRepository usersRepository;
+
+    @Inject
+    public UsersService(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
+    }
+
+    public List<User> listUsers() {
+        return usersRepository.findUsers();
     }
 }

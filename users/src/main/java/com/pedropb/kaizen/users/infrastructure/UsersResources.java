@@ -10,8 +10,7 @@ import static spark.Spark.get;
 public class UsersResources implements Resource {
 
     private final UsersService usersService;
-
-    Gson gson;
+    private final Gson gson;
 
     @Inject
     public UsersResources(UsersService usersService) {
