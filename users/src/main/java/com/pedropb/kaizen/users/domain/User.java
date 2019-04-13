@@ -2,6 +2,8 @@ package com.pedropb.kaizen.users.domain;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.UUID;
+
 @AutoValue
 public abstract class User {
     public abstract String id();
@@ -18,6 +20,13 @@ public abstract class User {
 
     public static Builder builder() {
         return new AutoValue_User.Builder();
+    }
+
+    public static Builder testBuilder() {
+        return builder()
+                .id(UUID.randomUUID().toString())
+                .name(UUID.randomUUID().toString())
+                .email(UUID.randomUUID().toString());
     }
 
     @AutoValue.Builder

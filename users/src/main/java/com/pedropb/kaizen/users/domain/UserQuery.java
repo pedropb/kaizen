@@ -8,15 +8,15 @@ import java.util.Set;
 @AutoValue
 public abstract class UserQuery {
 
-    public abstract Optional<Set<String>> ids();
-    public abstract Optional<Set<String>> names();
-    public abstract Optional<String> email();
+    public abstract Optional<Set<String>> idIn();
+    public abstract Optional<String> nameStartWith();
+    public abstract Optional<Set<String>> emailIn();
 
-    public static UserQuery create(Optional<Set<String>> ids, Optional<Set<String>> names, Optional<String> email) {
+    public static UserQuery create(Optional<Set<String>> idIn, Optional<String> nameStartWith, Optional<Set<String>> emailIn) {
         return builder()
-                .ids(ids)
-                .names(names)
-                .email(email)
+                .idIn(idIn)
+                .nameStartWith(nameStartWith)
+                .emailIn(emailIn)
                 .build();
     }
 
@@ -26,11 +26,12 @@ public abstract class UserQuery {
 
     @AutoValue.Builder
     public abstract static class Builder {
-        public abstract Builder ids(Optional<Set<String>> ids);
 
-        public abstract Builder email(Optional<String> email);
+        public abstract Builder idIn(Optional<Set<String>> idIn);
 
-        public abstract Builder names(Optional<Set<String>> names);
+        public abstract Builder nameStartWith(Optional<String> nameStartWith);
+
+        public abstract Builder emailIn(Optional<Set<String>> emailIn);
 
         public abstract UserQuery build();
     }

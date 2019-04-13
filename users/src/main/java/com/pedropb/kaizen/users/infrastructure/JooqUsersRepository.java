@@ -65,11 +65,11 @@ public class JooqUsersRepository implements UsersRepository {
 
     private static Condition[] queryToCondition(UserQuery query) {
         return new Condition[] {
-            query.ids().map(USERS.ID::in).orElse(noCondition()),
-            query.names()
+            query.idIn().map(USERS.ID::in).orElse(noCondition()),
+            query.nameStartWith().map(name -> (Condition) USERS.NAME.likeIgnoreCase(name.concat("%"))).orElse(noCondition()),
+            query.emailIn()
                  .map(set -> set.stream().map(String::toLowerCase).collect(Collectors.toSet()))
-                 .map(USERS.NAME::in).orElse(noCondition()),
-            query.email().map(USERS.EMAIL::like).map(Condition.class::cast).orElse(noCondition())
+                 .map(USERS.EMAIL::in).orElse(noCondition())
         };
     }
 
