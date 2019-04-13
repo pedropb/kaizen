@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static infrastructure.generated.jooq.Tables.USERS;
 import static org.jooq.impl.DSL.noCondition;
@@ -42,31 +41,36 @@ public class JooqUsersRepository implements UsersRepository {
     }
 
     @Override
-    public boolean save(Collection<User> users) {
+    public int[] save(Collection<User> users) {
         DSLContext context = DSL.using(dataSource, SQLDialect.H2);
 
         List<Query> upsertQueries = users.stream()
-                                         .map(JooqUsersRepository::serialize)
-                                         .map(record -> context.insertInto(USERS).set(record).onDuplicateKeyUpdate().set(record))
+                                         .map(user -> context.insertInto(USERS, USERS.ID, USERS.NAME, USERS.EMAIL)
+                                                             .values(user.id(), user.name(), user.email())
+                                                             .onDuplicateKeyUpdate()
+                                                             .set(newVersion(user))
+                                                             .where(USERS.ID.eq(user.id()),
+                                                                    USERS.VERSION.eq(user.version())))
                                          .collect(Collectors.toList());
 
-        int[] result = context.batch(upsertQueries).execute();
-
-        return IntStream.of(result).anyMatch(i -> i == 0);
+        return context.batch(upsertQueries).execute();
     }
 
-    private static UsersRecord serialize(User user) {
+    private static UsersRecord newVersion(User user) {
         return new UsersRecord(
                 user.id(),
                 user.name(),
-                user.email()
+                user.email(),
+                user.version() + 1
         );
     }
 
     private static Condition[] queryToCondition(UserQuery query) {
         return new Condition[] {
-            query.idIn().map(USERS.ID::in).orElse(noCondition()),
-            query.nameStartWith().map(name -> (Condition) USERS.NAME.likeIgnoreCase(name.concat("%"))).orElse(noCondition()),
+            query.idIn()
+                 .map(USERS.ID::in).orElse(noCondition()),
+            query.nameStartWith()
+                 .map(name -> (Condition) USERS.NAME.likeIgnoreCase(name.concat("%"))).orElse(noCondition()),
             query.emailIn()
                  .map(set -> set.stream().map(String::toLowerCase).collect(Collectors.toSet()))
                  .map(USERS.EMAIL::in).orElse(noCondition())
@@ -77,7 +81,8 @@ public class JooqUsersRepository implements UsersRepository {
         return User.create(
                 usersRecord.getId(),
                 usersRecord.getName(),
-                usersRecord.getEmail()
+                usersRecord.getEmail(),
+                usersRecord.getVersion()
         );
     }
 

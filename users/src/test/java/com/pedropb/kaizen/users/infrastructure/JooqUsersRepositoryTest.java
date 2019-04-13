@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeAll;
 import javax.sql.DataSource;
 import java.util.stream.Collectors;
 
-
 class JooqUsersRepositoryTest extends UsersRepositoryTest {
     public static final String JDBC_URL = "jdbc:h2:mem:test_users;MODE=MySQL;DB_CLOSE_DELAY=-1";
 

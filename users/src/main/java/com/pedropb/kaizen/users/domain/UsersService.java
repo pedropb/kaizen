@@ -13,6 +13,6 @@ public class UsersService {
     }
 
     public List<User> listUsers() {
-        return usersRepository.findUsers();
+        return usersRepository.findAllUsers();
     }
 }

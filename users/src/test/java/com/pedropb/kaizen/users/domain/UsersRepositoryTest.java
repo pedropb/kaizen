@@ -21,9 +21,9 @@ public abstract class UsersRepositoryTest {
     public abstract UsersRepository repository();
 
     @Test
-    void findUsers_returns_all_users() {
+    void findAllUsers_returns_all_users() {
         List<User> allUsers = populateUsers();
-        List<User> usersFound = repository().findUsers();
+        List<User> usersFound = repository().findAllUsers();
         assertThat(usersFound, is(allUsers));
     }
 
@@ -67,10 +67,38 @@ public abstract class UsersRepositoryTest {
         assertThat(usersFound, is(Sets.newHashSet(alice, alicia)));
     }
 
+    @Test
+    void save_one_user_when_user_does_not_exist_then_insert_and_return_true() {
+        User user1 = User.testBuilder().build();
+        assert !repository().findUserById(user1.id()).isPresent();
+
+        assertThat(repository().save(user1), is(true));
+
+        Optional<User> savedUser = repository().findUserById(user1.id());
+        assertThat(savedUser.isPresent(), is(true));
+        assertThat(savedUser.get(), is(user1));
+    }
+
+    @Test
+    void save_one_user_when_user_exists_and_version_matches_then_update_and_increment_version_and_return_true() {
+        User user1 = User.testBuilder().build();
+        assert !repository().findUserById(user1.id()).isPresent();
+        assert repository().save(user1);
+        assert repository().findUserById(user1.id()).isPresent();
+
+        assertThat(repository().save(user1), is(true));
+
+        Optional<User> savedUser = repository().findUserById(user1.id());
+        assertThat(savedUser.isPresent(), is(true));
+        assertThat(savedUser.get(), is(user1.toBuilder()
+                                            .version(user1.version() + 1)
+                                            .build()));
+    }
+
+
     private List<User> populateUsers() {
         List<User> users = IntStream.range(0, 1 + new Random().nextInt(20))
-                                    .boxed()
-                                    .map(i -> User.testBuilder().build())
+                                    .mapToObj(i -> User.testBuilder().build())
                                     .collect(Collectors.toList());
         repository().save(users);
         return users;
