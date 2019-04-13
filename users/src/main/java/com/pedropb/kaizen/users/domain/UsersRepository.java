@@ -10,5 +10,5 @@ public interface UsersRepository {
 
     List<User> findUsers(UserQuery userQuery);
 
-    void save(Collection<User> users);
+    boolean save(Collection<User> users);
 }

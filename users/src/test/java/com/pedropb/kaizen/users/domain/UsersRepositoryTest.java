@@ -4,14 +4,13 @@ package com.pedropb.kaizen.users.domain;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 
-abstract class UsersRepositoryTest {
+public abstract class UsersRepositoryTest {
     public abstract UsersRepository repository();
 
     @Test

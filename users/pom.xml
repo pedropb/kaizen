@@ -201,7 +201,7 @@
                             <inputSchema>KAIZEN</inputSchema>
                         </database>
                         <target>
-                            <packageName>org.jooq.example.flyway.db.h2</packageName>
+                            <packageName>infrastructure.generated.jooq</packageName>
                             <directory>target/generated-sources/jooq-h2</directory>
                         </target>
                     </generator>
