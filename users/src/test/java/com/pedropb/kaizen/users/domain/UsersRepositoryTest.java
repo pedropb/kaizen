@@ -34,7 +34,7 @@ public abstract class UsersRepositoryTest {
 
         Set<User> expectedUsers = new HashSet<>(allUsers.subList(0, new Random().nextInt(allUsers.size())));
         Set<String> ids = expectedUsers.stream().map(User::id).collect(Collectors.toSet());
-        UserQuery query = UserQuery.builder().idIn(Optional.of(ids)).build();
+        UserQuery query = UserQuery.builder().idIn(ids).build();
 
         Set<User> usersFound = new HashSet<>(repository().findUsers(query));
         assertThat(usersFound, is(expectedUsers));
@@ -47,7 +47,7 @@ public abstract class UsersRepositoryTest {
 
         Set<User> expectedUsers = new HashSet<>(allUsers.subList(0, new Random().nextInt(allUsers.size())));
         Set<String> emails = expectedUsers.stream().map(User::email).collect(Collectors.toSet());
-        UserQuery query = UserQuery.builder().emailIn(Optional.of(emails)).build();
+        UserQuery query = UserQuery.builder().emailIn(emails).build();
 
         Set<User> usersFound = new HashSet<>(repository().findUsers(query));
         assertThat(usersFound, is(expectedUsers));
@@ -60,8 +60,8 @@ public abstract class UsersRepositoryTest {
         User bob = User.testBuilder().name("Bob").build();
         User dalila = User.testBuilder().name("Dalila").build();
 
-        populateUsers(alice, alicia, bob, dalila);
-        UserQuery query = UserQuery.builder().nameStartWith(Optional.of("ali")).build();
+        repository().save(alice, alicia, bob, dalila);
+        UserQuery query = UserQuery.builder().nameStartWith("ali").build();
 
         Set<User> usersFound = new HashSet<>(repository().findUsers(query));
         assertThat(usersFound, is(Sets.newHashSet(alice, alicia)));
@@ -69,30 +69,56 @@ public abstract class UsersRepositoryTest {
 
     @Test
     void save_one_user_when_user_does_not_exist_then_insert_and_return_true() {
-        User user1 = User.testBuilder().build();
-        assert !repository().findUserById(user1.id()).isPresent();
+        User user = User.testBuilder().build();
+        assert !repository().findUserById(user.id()).isPresent();
 
-        assertThat(repository().save(user1), is(true));
+        assertThat(repository().save(user), is(true));
 
-        Optional<User> savedUser = repository().findUserById(user1.id());
+        Optional<User> savedUser = repository().findUserById(user.id());
         assertThat(savedUser.isPresent(), is(true));
-        assertThat(savedUser.get(), is(user1));
+        assertThat(savedUser.get(), is(user));
     }
 
     @Test
     void save_one_user_when_user_exists_and_version_matches_then_update_and_increment_version_and_return_true() {
+        User user = User.testBuilder().build();
+        assert repository().save(user);
+
+        User insertedUser = repository().findUserById(user.id()).orElseThrow(IllegalStateException::new);
+        User updatedUser = insertedUser.toBuilder().name("Update test").build();
+        assertThat(repository().save(updatedUser), is(true));
+        assertThat(repository().findUserById(user.id()).orElseThrow(IllegalStateException::new),
+                   is(updatedUser));
+    }
+    @Test
+    void save_user_when_user_exists_and_version_mismatches_then_does_not_update_and_return_false() {
+        User user = User.testBuilder().name("ailce").build();
+        assert repository().save(user);
+
+        User savedUser = repository().findUserById(user.id()).orElseThrow(IllegalStateException::new);
+        User concurrentChange = savedUser.toBuilder().name("alice").build();
+        User intendedChange = savedUser.toBuilder().name("Alice").build();
+
+        assert repository().save(concurrentChange);
+        assertThat(repository().save(intendedChange), is(false));
+        User updatedUser = repository().findUserById(user.id()).orElseThrow(IllegalStateException::new);
+        assertThat(updatedUser.version(), is(intendedChange.version().map(v -> v + 1)));
+    }
+
+    @Test
+    void save_multiple_users_when_users_exist_and_version_matches_then_update_and_increment_version_and_return_true() {
         User user1 = User.testBuilder().build();
-        assert !repository().findUserById(user1.id()).isPresent();
-        assert repository().save(user1);
-        assert repository().findUserById(user1.id()).isPresent();
+        User user2 = User.testBuilder().build();
+        assert Arrays.stream(repository().save(user1, user2)).allMatch(i -> i == 1);
 
-        assertThat(repository().save(user1), is(true));
+        UserQuery query = UserQuery.builder().idIn(Sets.newHashSet(user1.id(), user2.id())).build();
+        List<User> savedUsers = repository().findUsers(query);
+        List<User> updatedUsers = savedUsers.stream()
+                                            .map(user -> user.toBuilder().name(user.name() + " Updated").build())
+                                            .collect(Collectors.toList());
 
-        Optional<User> savedUser = repository().findUserById(user1.id());
-        assertThat(savedUser.isPresent(), is(true));
-        assertThat(savedUser.get(), is(user1.toBuilder()
-                                            .version(user1.version() + 1)
-                                            .build()));
+        assertThat(Arrays.stream(repository().save(updatedUsers)).allMatch(i -> i == 1), is(true));
+        assertThat(repository().findUsers(query), is(updatedUsers));
     }
 
 
@@ -102,11 +128,5 @@ public abstract class UsersRepositoryTest {
                                     .collect(Collectors.toList());
         repository().save(users);
         return users;
-    }
-
-    private List<User> populateUsers(User... users) {
-        List<User> userList = Arrays.asList(users);
-        repository().save(userList);
-        return userList;
     }
 }

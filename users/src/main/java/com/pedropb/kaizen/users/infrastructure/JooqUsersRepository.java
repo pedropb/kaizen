@@ -14,7 +14,9 @@ import org.jooq.Query;
 import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static infrastructure.generated.jooq.Tables.USERS;
 import static org.jooq.impl.DSL.noCondition;
@@ -22,7 +24,7 @@ import static org.jooq.impl.DSL.noCondition;
 
 public class JooqUsersRepository implements UsersRepository {
 
-    DataSource dataSource;
+    private DataSource dataSource;
 
     @Inject
     public JooqUsersRepository(DataSource dataSource) {
@@ -44,16 +46,19 @@ public class JooqUsersRepository implements UsersRepository {
     public int[] save(Collection<User> users) {
         DSLContext context = DSL.using(dataSource, SQLDialect.H2);
 
-        List<Query> upsertQueries = users.stream()
-                                         .map(user -> context.insertInto(USERS, USERS.ID, USERS.NAME, USERS.EMAIL)
-                                                             .values(user.id(), user.name(), user.email())
-                                                             .onDuplicateKeyUpdate()
-                                                             .set(newVersion(user))
-                                                             .where(USERS.ID.eq(user.id()),
-                                                                    USERS.VERSION.eq(user.version())))
-                                         .collect(Collectors.toList());
+        Stream<Query> insertQueries = users.stream()
+                                           .filter(user -> !user.version().isPresent())
+                                           .map(user -> context.insertInto(USERS, USERS.ID, USERS.NAME, USERS.EMAIL)
+                                                             .values(user.id(), user.name(), user.email()));
 
-        return context.batch(upsertQueries).execute();
+        Stream<Query> updateQueries = users.stream()
+                                           .filter(user -> user.version().isPresent())
+                                           .map(user -> context.update(USERS)
+                                                               .set(newVersion(user))
+                                                               .where(USERS.ID.eq(user.id()),
+                                                                      USERS.VERSION.eq(user.version().get())));
+
+        return context.batch(Stream.concat(insertQueries, updateQueries).collect(Collectors.toList())).execute();
     }
 
     private static UsersRecord newVersion(User user) {
@@ -61,19 +66,17 @@ public class JooqUsersRepository implements UsersRepository {
                 user.id(),
                 user.name(),
                 user.email(),
-                user.version() + 1
+                user.version().map(version -> version + 1).orElse(0)
         );
     }
 
     private static Condition[] queryToCondition(UserQuery query) {
         return new Condition[] {
-            query.idIn()
-                 .map(USERS.ID::in).orElse(noCondition()),
-            query.nameStartWith()
-                 .map(name -> (Condition) USERS.NAME.likeIgnoreCase(name.concat("%"))).orElse(noCondition()),
-            query.emailIn()
-                 .map(set -> set.stream().map(String::toLowerCase).collect(Collectors.toSet()))
-                 .map(USERS.EMAIL::in).orElse(noCondition())
+            query.idIn() != null ? USERS.ID.in(query.idIn()) : noCondition(),
+            query.nameStartWith() != null ? USERS.NAME.likeIgnoreCase(query.nameStartWith().concat("%")) : noCondition(),
+            query.emailIn() != null
+                    ? USERS.EMAIL.lower().in(query.emailIn().stream().map(String::toLowerCase).collect(Collectors.toSet()))
+                    : noCondition()
         };
     }
 
@@ -82,7 +85,7 @@ public class JooqUsersRepository implements UsersRepository {
                 usersRecord.getId(),
                 usersRecord.getName(),
                 usersRecord.getEmail(),
-                usersRecord.getVersion()
+                Optional.of(usersRecord.getVersion())
         );
     }
 

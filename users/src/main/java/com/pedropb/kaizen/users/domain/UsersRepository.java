@@ -1,5 +1,8 @@
 package com.pedropb.kaizen.users.domain;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -12,13 +15,17 @@ public interface UsersRepository {
     }
 
     default Optional<User> findUserById(String userId) {
-        UserQuery query = UserQuery.builder().idIn(Optional.of(Collections.singleton(userId))).build();
+        UserQuery query = UserQuery.builder().idIn(ImmutableSet.of(userId)).build();
         return findUsers(query).stream().findFirst();
     }
 
     List<User> findUsers(UserQuery userQuery);
 
     int[] save(Collection<User> users);
+
+    default int[] save(User... users) {
+        return save(Arrays.asList(users));
+    }
 
     default boolean save(User user) {
         return save(Collections.singletonList(user))[0] == 1;
