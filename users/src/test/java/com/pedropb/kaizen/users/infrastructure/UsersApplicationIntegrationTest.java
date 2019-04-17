@@ -3,6 +3,7 @@ package com.pedropb.kaizen.users.infrastructure;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pedropb.kaizen.users.api.in.CreateUser;
+import com.pedropb.kaizen.users.api.in.UpdateUser;
 import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.infrastructure.persistence.PooledDataSourceFactory;
 import com.pedropb.kaizen.users.infrastructure.persistence.config.StubConfig;
@@ -82,6 +83,18 @@ class UsersApplicationIntegrationTest {
                 .body("name", is("John"))
                 .body("email", is("john@gmail.com"))
                 .body("id", any(String.class));
+    }
+
+    @Test
+    void post_with_incorrect_payload_returns_400() {
+        given()
+                .body("{\"unknownProperty\": true }")
+        .when()
+                .post("/")
+        .then()
+                .statusCode(400)
+                .body("error", is(true))
+                .body("exception", is("InvalidDtoException"));
     }
 
     @Test
@@ -174,9 +187,9 @@ class UsersApplicationIntegrationTest {
 
     @Test
     void get_with_query_param_when_users_dont_match_returns_200_and_empty_array() {
-        UserData alice = createUser("Alice", "alice@gmail.com");
-        UserData bob = createUser("Bob", "bob@gmail.com");
-        UserData chris = createUser("Chris", "chris@gmail.com");
+        createUser("Alice", "alice@gmail.com");
+        createUser("Bob", "bob@gmail.com");
+        createUser("Chris", "chris@gmail.com");
 
         Response response = given().param("nameStartsWith", "John").get("/");
 
@@ -198,6 +211,46 @@ class UsersApplicationIntegrationTest {
                 .statusCode(200)
                 .body("$", hasSize(3));
         assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
+    }
+
+    @Test
+    void put_with_incorrect_payload_returns_400() {
+        given()
+                .body("{\"unknownProperty\": true }")
+        .when()
+                .put("/{id}", UUID.randomUUID())
+        .then()
+                .statusCode(400)
+                .body("error", is(true))
+                .body("exception", is("InvalidDtoException"));
+    }
+
+    @Test
+    void put_when_user_does_not_exist_returns_404() {
+        UpdateUser updateUser = new UpdateUser("test", "email@test.com");
+        given()
+                .body(gson.toJson(updateUser))
+        .when()
+                .put("/{id}", UUID.randomUUID())
+        .then()
+                .statusCode(404)
+                .body("error", is(true))
+                .body("exception", is("UserNotFoundException"));
+    }
+
+    @Test
+    void put_when_user_exists_returns_200_and_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UpdateUser bob = new UpdateUser("Bob", "bob@gmail.com");
+        given()
+                .body(gson.toJson(bob))
+        .when()
+                .put("/{id}", alice.id)
+        .then()
+                .statusCode(200)
+                .body("id", is(alice.id))
+                .body("name", is(bob.name))
+                .body("email", is(bob.email));
     }
 
     private UserData createUser(String name, String email) {

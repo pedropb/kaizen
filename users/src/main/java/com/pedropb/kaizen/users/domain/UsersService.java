@@ -1,11 +1,14 @@
 package com.pedropb.kaizen.users.domain;
 
 import com.pedropb.kaizen.users.api.in.CreateUser;
+import com.pedropb.kaizen.users.api.in.UpdateUser;
 import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.exceptions.UserChangedBeforeUpdateException;
 import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import com.pedropb.kaizen.users.domain.models.User;
 import com.pedropb.kaizen.users.domain.models.UserQuery;
+import org.jooq.exception.DataChangedException;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -52,5 +55,18 @@ public class UsersService {
                               .stream()
                               .map(user -> new UserData(user.id(), user.name(), user.email()))
                               .collect(Collectors.toList());
+    }
+
+    public UserData updateUser(String id, UpdateUser userDto) {
+        User updatedUser = usersRepository.findUserById(id).orElseThrow(UserNotFoundException::new)
+                                          .toBuilder()
+                                          .name(userDto.name)
+                                          .email(userDto.email)
+                                          .build();
+        if (!usersRepository.save(updatedUser)) {
+            throw new UserChangedBeforeUpdateException();
+        }
+
+        return new UserData(updatedUser.id(), updatedUser.name(), updatedUser.email());
     }
 }

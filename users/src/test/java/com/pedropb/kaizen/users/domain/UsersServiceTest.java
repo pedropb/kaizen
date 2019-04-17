@@ -2,8 +2,10 @@ package com.pedropb.kaizen.users.domain;
 
 import com.google.common.collect.Sets;
 import com.pedropb.kaizen.users.api.in.CreateUser;
+import com.pedropb.kaizen.users.api.in.UpdateUser;
 import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.exceptions.UserChangedBeforeUpdateException;
 import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import com.pedropb.kaizen.users.domain.models.User;
 import com.pedropb.kaizen.users.domain.models.UserQuery;
@@ -130,5 +132,41 @@ class UsersServiceTest {
         UserData userData3 = new UserData(user3.id(), user3.name(), user3.email());
         assertThat(usersService.findUsers(null, null, null), containsInAnyOrder(userData1, userData2, userData3));
         verify(usersRepository, times(1)).findUsers(any(UserQuery.class));
+    }
+
+    @Test
+    void updateUser_when_usersRepository_find_and_save_returns_correctly_then_return_user_data() {
+        UpdateUser dto = new UpdateUser("test", "email");
+        User updatedUser = User.testBuilder().name(dto.name).email(dto.email).build();
+        when(usersRepository.findUserById(updatedUser.id())).thenReturn(Optional.of(updatedUser));
+        when(usersRepository.save(updatedUser)).thenReturn(true);
+
+        assertThat(usersService.updateUser(updatedUser.id(), dto), is(new UserData(updatedUser.id(), dto.name, dto.email)));
+        verify(usersRepository, times(1)).findUserById(updatedUser.id());
+        verify(usersRepository, times(1)).save(updatedUser);
+    }
+
+    @Test
+    void updateUser_when_usersRepository_find_returns_empty_then_throw_exception() {
+        String id = UUID.randomUUID().toString();
+        UpdateUser dto = new UpdateUser("test", "email");
+
+        when(usersRepository.findUserById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> usersService.updateUser(id, dto));
+        verify(usersRepository, times(1)).findUserById(id);
+    }
+
+    @Test
+    void updateUser_when_usersRepository_save_returns_false_then_throw_exception() {
+        String id = UUID.randomUUID().toString();
+        UpdateUser dto = new UpdateUser("test", "email");
+        User updatedUser = User.testBuilder().name(dto.name).email(dto.email).build();
+        when(usersRepository.findUserById(id)).thenReturn(Optional.of(updatedUser));
+        when(usersRepository.save(updatedUser)).thenReturn(false);
+
+        assertThrows(UserChangedBeforeUpdateException.class, () -> usersService.updateUser(id, dto));
+        verify(usersRepository, times(1)).findUserById(id);
+        verify(usersRepository, times(1)).save(updatedUser);
     }
 }
