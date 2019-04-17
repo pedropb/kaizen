@@ -173,6 +173,9 @@
                     <locations>
                         <location>filesystem:src/main/resources/db/migration</location>
                     </locations>
+                    <schemas>
+                        <schema>KAIZEN</schema>
+                    </schemas>
                 </configuration>
             </plugin>
             <plugin>
