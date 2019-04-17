@@ -253,6 +253,29 @@ class UsersApplicationIntegrationTest {
                 .body("email", is(bob.email));
     }
 
+    @Test
+    void delete_when_user_exists_returns_204_and_deletes_user() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+
+        when()
+                .delete("/{id}", alice.id)
+        .then()
+                .statusCode(204);
+
+        when()
+                .get("/{id}", alice.id)
+        .then()
+                .statusCode(404);
+    }
+
+    @Test
+    void delete_when_user_does_not_exist_returns_404() {
+        when()
+                .delete("/{id}", UUID.randomUUID())
+        .then()
+                .statusCode(404);
+    }
+
     private UserData createUser(String name, String email) {
         CreateUser createUser = new CreateUser(name, email);
         return given().body(gson.toJson(createUser))
