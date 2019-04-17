@@ -3,6 +3,7 @@ package com.pedropb.kaizen.users.domain;
 import com.pedropb.kaizen.users.api.in.CreateUser;
 import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import com.pedropb.kaizen.users.domain.models.User;
 
 import javax.inject.Inject;
@@ -37,6 +38,11 @@ public class UsersService {
             throw new UserAlreadyCreatedException();
         }
 
+        return new UserData(user.id(), user.name(), user.email());
+    }
+
+    public UserData findUserById(String id) {
+        User user = usersRepository.findUserById(id).orElseThrow(UserNotFoundException::new);
         return new UserData(user.id(), user.name(), user.email());
     }
 }

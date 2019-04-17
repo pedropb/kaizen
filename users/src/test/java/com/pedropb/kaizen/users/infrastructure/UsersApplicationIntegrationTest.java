@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.util.List;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
@@ -86,7 +87,7 @@ class UsersApplicationIntegrationTest {
     }
 
     @Test
-    void get_when_users_returns_200_and_array_with_users() {
+    void get_when_users_exist_returns_200_and_array_with_users() {
         UserData alice = createUser("Alice", "alice@gmail.com");
         UserData bob = createUser("Bob", "bob@gmail.com");
         UserData chris = createUser("Chris", "chris@gmail.com");
@@ -97,6 +98,23 @@ class UsersApplicationIntegrationTest {
                 .body("$", hasSize(3));
 
         assertThat(gson.fromJson(response.body().print(), LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
+    }
+
+    @Test
+    void get_with_path_param_when_user_exist_returns_200_and_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+
+        Response response = get("/" + alice.id);
+        assertThat(response.statusCode(), is(200));
+        assertThat(gson.fromJson(response.body().print(), UserData.class), is(alice));
+    }
+
+    @Test
+    void get_with_path_param_when_user_does_not_exist_returns_404() {
+        when()
+                .get("/" + UUID.randomUUID())
+        .then()
+                .statusCode(404);
     }
 
     private UserData createUser(String name, String email) {

@@ -3,6 +3,7 @@ package com.pedropb.kaizen.users.domain;
 import com.pedropb.kaizen.users.api.in.CreateUser;
 import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import com.pedropb.kaizen.users.domain.models.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -68,5 +72,24 @@ class UsersServiceTest {
         UserData expectedUser = new UserData(savedUser.id(), savedUser.name(), savedUser.email());
 
         assertThat(returnedUser, is(expectedUser));
+    }
+
+    @Test
+    void findUserById_when_usersRepository_returns_empty_then_throw_exception() {
+        String id = UUID.randomUUID().toString();
+        when(usersRepository.findUserById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> usersService.findUserById(id));
+        verify(usersRepository, times(1)).findUserById(id);
+    }
+
+    @Test
+    void findUserById_when_usersRepository_returns_user_then_return_userData() {
+        String id = UUID.randomUUID().toString();
+        User user = User.testBuilder().id(id).build();
+        when(usersRepository.findUserById(id)).thenReturn(Optional.of(user));
+
+        assertThat(usersService.findUserById(id), is(new UserData(user.id(), user.name(), user.email())));
+        verify(usersRepository, times(1)).findUserById(id);
     }
 }

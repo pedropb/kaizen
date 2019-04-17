@@ -9,6 +9,7 @@ import com.pedropb.kaizen.users.domain.UsersService;
 import javax.inject.Inject;
 import com.google.gson.Gson;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import spark.Request;
 
 import static spark.Spark.exception;
@@ -32,7 +33,7 @@ public class UsersResources implements Resource {
 
         get("/", json((req, res) -> usersService.listUsers()), gson::toJson);
 
-//        get("/", json((req, res) -> ));
+        get("/:id", json((req, res) -> usersService.findUserById(req.params("id"))), gson::toJson);
 
         //get with query parameter
         //get with path parameter
@@ -40,6 +41,7 @@ public class UsersResources implements Resource {
         //delete
 
         exception(UserAlreadyCreatedException.class, exceptionJson(409));
+        exception(UserNotFoundException.class, exceptionJson(404));
         exception(InvalidDtoException.class, exceptionJson(400));
         exception(RuntimeException.class, exceptionJson(500));
     }
