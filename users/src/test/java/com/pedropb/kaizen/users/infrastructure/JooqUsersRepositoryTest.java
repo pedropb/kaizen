@@ -3,6 +3,7 @@ package com.pedropb.kaizen.users.infrastructure;
 import com.pedropb.kaizen.users.domain.UsersRepository;
 import com.pedropb.kaizen.users.domain.UsersRepositoryTest;
 import com.pedropb.kaizen.users.infrastructure.config.DevConfig;
+import com.pedropb.kaizen.users.infrastructure.config.StubConfig;
 import infrastructure.generated.jooq.Kaizen;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -15,8 +16,6 @@ import javax.sql.DataSource;
 import java.util.stream.Collectors;
 
 class JooqUsersRepositoryTest extends UsersRepositoryTest {
-    public static final String JDBC_URL = "jdbc:h2:mem:test_users;MODE=MySQL;DB_CLOSE_DELAY=-1";
-
     private static UsersRepository jooqUsersRepository;
     private static DataSource dataSource;
 
@@ -45,13 +44,5 @@ class JooqUsersRepositoryTest extends UsersRepositoryTest {
                                    .collect(Collectors.toList()))
                .execute();
         context.execute("SET REFERENTIAL_INTEGRITY TRUE");
-    }
-
-
-    private static class StubConfig extends DevConfig {
-        @Override
-        public String getJdbcUrl() {
-            return JDBC_URL;
-        }
     }
 }
