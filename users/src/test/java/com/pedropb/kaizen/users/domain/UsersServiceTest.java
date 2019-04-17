@@ -2,6 +2,7 @@ package com.pedropb.kaizen.users.domain;
 
 import com.pedropb.kaizen.users.api.in.CreateUser;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.models.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

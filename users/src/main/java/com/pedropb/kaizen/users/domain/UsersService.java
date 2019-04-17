@@ -3,6 +3,7 @@ package com.pedropb.kaizen.users.domain;
 import com.pedropb.kaizen.users.api.in.CreateUser;
 import com.pedropb.kaizen.users.api.out.UserCreated;
 import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
+import com.pedropb.kaizen.users.domain.models.User;
 
 import javax.inject.Inject;
 import java.util.List;

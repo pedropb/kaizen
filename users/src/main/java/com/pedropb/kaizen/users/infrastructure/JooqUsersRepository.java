@@ -1,8 +1,8 @@
 package com.pedropb.kaizen.users.infrastructure;
 
 import com.google.inject.Inject;
-import com.pedropb.kaizen.users.domain.User;
-import com.pedropb.kaizen.users.domain.UserQuery;
+import com.pedropb.kaizen.users.domain.models.User;
+import com.pedropb.kaizen.users.domain.models.UserQuery;
 import com.pedropb.kaizen.users.domain.UsersRepository;
 import infrastructure.generated.jooq.tables.records.UsersRecord;
 import org.jooq.Condition;

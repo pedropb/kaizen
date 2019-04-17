@@ -1,4 +1,4 @@
-package com.pedropb.kaizen.users.domain;
+package com.pedropb.kaizen.users.domain.models;
 
 import com.google.auto.value.AutoValue;
 
@@ -14,7 +14,7 @@ public abstract class User {
     public abstract Optional<Integer> version();
 
     public static Builder builder() {
-        return new AutoValue_User.Builder();
+        return new $AutoValue_User.Builder();
     }
 
     public static Builder testBuilder() {

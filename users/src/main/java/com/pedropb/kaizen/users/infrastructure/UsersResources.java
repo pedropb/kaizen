@@ -34,7 +34,6 @@ public class UsersResources implements Resource {
 
         //get with query parameter
         //get with path parameter
-        //post
         //put
         //delete
 

@@ -2,6 +2,8 @@ package com.pedropb.kaizen.users.domain;
 
 
 import com.google.common.collect.Sets;
+import com.pedropb.kaizen.users.domain.models.User;
+import com.pedropb.kaizen.users.domain.models.UserQuery;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

@@ -14,12 +14,12 @@ import java.util.logging.Logger;
 
 public class UsersApplication {
 
-    static void registerResources(Resource... resources) {
+    private static void registerResources(Resource... resources) {
         Arrays.stream(resources)
               .forEach(Resource::configure);
     }
 
-    public static void configureLogging() {
+    private static void configureLogging() {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS.%1$tLZ %4$-6s %2$s %5$s%6$s%n");
 
         try {
@@ -32,7 +32,7 @@ public class UsersApplication {
         }
     }
 
-    public static void migrateDatabase(DataSource dataSource) {
+    private static void migrateDatabase(DataSource dataSource) {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.migrate();

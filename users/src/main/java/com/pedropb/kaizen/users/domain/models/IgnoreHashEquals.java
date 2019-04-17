@@ -1,4 +1,4 @@
-package com.pedropb.kaizen.users.domain;
+package com.pedropb.kaizen.users.domain.models;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

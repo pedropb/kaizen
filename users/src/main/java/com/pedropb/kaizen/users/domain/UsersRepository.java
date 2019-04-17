@@ -1,6 +1,8 @@
 package com.pedropb.kaizen.users.domain;
 
 import com.google.common.collect.ImmutableSet;
+import com.pedropb.kaizen.users.domain.models.User;
+import com.pedropb.kaizen.users.domain.models.UserQuery;
 
 import java.util.Arrays;
 import java.util.Collection;
