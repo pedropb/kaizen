@@ -3,7 +3,7 @@ package com.pedropb.kaizen.users.infrastructure.resources;
 import com.google.gson.JsonSyntaxException;
 import com.pedropb.kaizen.users.api.exceptions.InvalidDtoException;
 import com.pedropb.kaizen.users.api.in.CreateUser;
-import com.pedropb.kaizen.users.api.out.UserCreated;
+import com.pedropb.kaizen.users.api.out.UserData;
 import com.pedropb.kaizen.users.domain.UsersService;
 
 import javax.inject.Inject;
@@ -44,7 +44,7 @@ public class UsersResources implements Resource {
         exception(RuntimeException.class, exceptionJson(500));
     }
 
-    private UserCreated createUser(Request req) {
+    private UserData createUser(Request req) {
         CreateUser userDto;
         try {
             userDto = gson.fromJson(req.body(), CreateUser.class);
