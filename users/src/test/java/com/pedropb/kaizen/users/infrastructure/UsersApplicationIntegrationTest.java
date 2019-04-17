@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.ServerSocket;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -89,20 +90,6 @@ class UsersApplicationIntegrationTest {
     }
 
     @Test
-    void get_when_users_exist_returns_200_and_array_of_user_data() {
-        UserData alice = createUser("Alice", "alice@gmail.com");
-        UserData bob = createUser("Bob", "bob@gmail.com");
-        UserData chris = createUser("Chris", "chris@gmail.com");
-
-        Response response = get("/");
-
-        response.then()
-                .statusCode(200)
-                .body("$", hasSize(3));
-        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
-    }
-
-    @Test
     void get_with_path_param_when_user_exists_returns_200_and_user_data() {
         UserData alice = createUser("Alice", "alice@gmail.com");
 
@@ -122,7 +109,7 @@ class UsersApplicationIntegrationTest {
     }
 
     @Test
-    void get_with_id_query_param_when_users_match_returns_200_and_array_of_user_data() {
+    void get_with_idIn_query_param_when_users_match_returns_200_and_array_of_user_data() {
         UserData alice = createUser("Alice", "alice@gmail.com");
         UserData bob = createUser("Bob", "bob@gmail.com");
         UserData chris = createUser("Chris", "chris@gmail.com");
@@ -137,7 +124,7 @@ class UsersApplicationIntegrationTest {
     }
 
     @Test
-    void get_with_name_query_param_when_users_match_returns_200_and_array_of_user_data() {
+    void get_with_nameStartsWith_query_param_when_users_match_returns_200_and_array_of_user_data() {
         UserData alice = createUser("Alice", "alice@gmail.com");
         UserData aline = createUser("Aline", "aline@gmail.com");
         UserData alicia = createUser("Alicia", "alicia@gmail.com");
@@ -151,6 +138,66 @@ class UsersApplicationIntegrationTest {
                 .body("$", hasSize(3));
         assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(alice, alicia, aline));
         assertThat(response.as(LIST_USER_DATA), not(containsInAnyOrder(bob, dalila)));
+    }
+
+    @Test
+    void get_with_emailIn_query_param_when_users_match_returns_200_and_array_of_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData chris = createUser("Chris", "chris@gmail.com");
+
+        Response response = given().param("emailIn", "bob@gmail.com", "chris@gmail.com").get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(2));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, chris));
+        assertThat(response.as(LIST_USER_DATA), not(containsInAnyOrder(alice)));
+    }
+
+    @Test
+    void get_with_multiple_query_param_when_users_match_returns_200_and_array_of_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData chris = createUser("Chris", "chris@gmail.com");
+
+        Response response = given()
+                .param("nameStartsWith", "Bob")
+                .param("emailIn", "bob@gmail.com", "chris@gmail.com").get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(1));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob));
+        assertThat(response.as(LIST_USER_DATA), not(containsInAnyOrder(alice, chris)));
+    }
+
+    @Test
+    void get_with_query_param_when_users_dont_match_returns_200_and_empty_array() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData chris = createUser("Chris", "chris@gmail.com");
+
+        Response response = given().param("nameStartsWith", "John").get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(0));
+        assertThat(response.as(List.class), is(Collections.emptyList()));
+    }
+
+    @Test
+    void get_with_no_query_params_returns_200_and_array_of_all_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData chris = createUser("Chris", "chris@gmail.com");
+
+        Response response = get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(3));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
     }
 
     private UserData createUser(String name, String email) {
