@@ -1,7 +1,7 @@
-package com.pedropb.kaizen.users.infrastructure;
+package com.pedropb.kaizen.users.infrastructure.persistence;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.pedropb.kaizen.users.infrastructure.config.JdbcConfig;
+import com.pedropb.kaizen.users.infrastructure.persistence.config.JdbcConfig;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;

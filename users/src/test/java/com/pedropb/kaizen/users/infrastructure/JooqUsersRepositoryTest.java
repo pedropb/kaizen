@@ -2,8 +2,9 @@ package com.pedropb.kaizen.users.infrastructure;
 
 import com.pedropb.kaizen.users.domain.UsersRepository;
 import com.pedropb.kaizen.users.domain.UsersRepositoryTest;
-import com.pedropb.kaizen.users.infrastructure.config.DevConfig;
-import com.pedropb.kaizen.users.infrastructure.config.StubConfig;
+import com.pedropb.kaizen.users.infrastructure.persistence.config.StubConfig;
+import com.pedropb.kaizen.users.infrastructure.persistence.JooqUsersRepository;
+import com.pedropb.kaizen.users.infrastructure.persistence.PooledDataSourceFactory;
 import infrastructure.generated.jooq.Kaizen;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;

@@ -14,8 +14,8 @@ import java.net.ServerSocket;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.any;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 class UsersApplicationIntegrationTest {
 
@@ -47,9 +47,27 @@ class UsersApplicationIntegrationTest {
                 .post("/")
         .then()
                 .statusCode(200)
-                .body("name", equalTo("John"))
-                .body("email", equalTo("john@gmail.com"))
+                .body("name", is("John"))
+                .body("email", is("john@gmail.com"))
                 .body("id", any(String.class));
+    }
+
+    @Test
+    void post_when_user_exists_returns_409_and_error_true() {
+        CreateUser createUser = new CreateUser("John", "john@gmail.com");
+        given()
+                .body(gson.toJson(createUser))
+        .when()
+                .post("/");
+
+        given()
+                .body(gson.toJson(createUser))
+        .when()
+                .post("/")
+        .then()
+                .statusCode(409)
+                .body("error", is(true))
+                .body("exception", is("UserAlreadyCreated"));
     }
 
     @Test

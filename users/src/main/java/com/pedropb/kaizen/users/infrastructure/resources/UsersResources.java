@@ -1,4 +1,4 @@
-package com.pedropb.kaizen.users.infrastructure;
+package com.pedropb.kaizen.users.infrastructure.resources;
 
 import com.google.gson.JsonSyntaxException;
 import com.pedropb.kaizen.users.api.exceptions.InvalidDtoException;
@@ -31,6 +31,8 @@ public class UsersResources implements Resource {
         post("/", json((req, res) -> createUser(req)), gson::toJson);
 
         get("/", json((req, res) -> usersService.listUsers()), gson::toJson);
+
+//        get("/", json((req, res) -> ));
 
         //get with query parameter
         //get with path parameter

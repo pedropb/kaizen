@@ -1,4 +1,4 @@
-package com.pedropb.kaizen.users.infrastructure.config;
+package com.pedropb.kaizen.users.infrastructure.persistence.config;
 
 public interface JdbcConfig {
     String getDriverClass();

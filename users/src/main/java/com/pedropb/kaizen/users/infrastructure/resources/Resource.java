@@ -1,7 +1,10 @@
-package com.pedropb.kaizen.users.infrastructure;
+package com.pedropb.kaizen.users.infrastructure.resources;
 
 import spark.ExceptionHandler;
 import spark.Route;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public interface Resource {
     void configure();
@@ -18,8 +21,7 @@ public interface Resource {
             res.type("application/json");
             res.status(statusCode);
             res.body("{ \"error\": true, \"exception\": \"" + e.getClass().getSimpleName() + "\"}");
-            e.printStackTrace();
-            System.err.println(e.getMessage());
+            Logger.getAnonymousLogger().log(Level.SEVERE, e.getMessage());
         };
 
     }

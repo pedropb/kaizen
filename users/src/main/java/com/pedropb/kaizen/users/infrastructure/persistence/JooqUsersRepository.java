@@ -1,4 +1,4 @@
-package com.pedropb.kaizen.users.infrastructure;
+package com.pedropb.kaizen.users.infrastructure.persistence;
 
 import com.google.inject.Inject;
 import com.pedropb.kaizen.users.domain.models.User;

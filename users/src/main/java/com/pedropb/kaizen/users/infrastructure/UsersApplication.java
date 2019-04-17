@@ -2,6 +2,10 @@ package com.pedropb.kaizen.users.infrastructure;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.pedropb.kaizen.users.infrastructure.modules.PersistenceModule;
+import com.pedropb.kaizen.users.infrastructure.modules.UsersModule;
+import com.pedropb.kaizen.users.infrastructure.resources.Resource;
+import com.pedropb.kaizen.users.infrastructure.resources.UsersResources;
 import org.flywaydb.core.Flyway;
 import spark.Spark;
 
