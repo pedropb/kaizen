@@ -2,7 +2,6 @@ package com.pedropb.kaizen.users.infrastructure;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.pedropb.kaizen.users.infrastructure.modules.PersistenceModule;
 import com.pedropb.kaizen.users.infrastructure.modules.UsersModule;
 import com.pedropb.kaizen.users.infrastructure.resources.Resource;
 import com.pedropb.kaizen.users.infrastructure.resources.UsersResources;
@@ -41,7 +40,7 @@ public class UsersApplication {
     }
 
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new UsersModule(), new PersistenceModule());
+        Injector injector = Guice.createInjector(new UsersModule());
         configureLogging();
         migrateDatabase(injector.getInstance(DataSource.class));
         registerResources(injector.getInstance(UsersResources.class));
