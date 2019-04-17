@@ -37,9 +37,7 @@ public class UsersApplication {
     }
 
     private static void migrateDatabase(DataSource dataSource) {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.migrate();
+        Flyway.configure().dataSource(dataSource).schemas("KAIZEN").load().migrate();
     }
 
     public static void main(String[] args) {

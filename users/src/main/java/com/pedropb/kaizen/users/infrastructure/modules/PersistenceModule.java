@@ -13,11 +13,11 @@ public class PersistenceModule extends AbstractModule {
     @Override
     public void configure() {
         JdbcConfig jdbcConfig;
-        switch(System.getProperty("Environment")) {
-            case "Development":
+        switch(System.getProperty("env")) {
+            case "dev":
                 jdbcConfig = new DevConfig();
                 break;
-            case "Test":
+            case "test":
             default:
                 jdbcConfig = new StubConfig();
                 break;

@@ -49,7 +49,8 @@ public class JooqUsersRepository implements UsersRepository {
         Stream<Query> insertQueries = users.stream()
                                            .filter(user -> !user.version().isPresent())
                                            .map(user -> context.insertInto(USERS, USERS.ID, USERS.NAME, USERS.EMAIL)
-                                                             .values(user.id(), user.name(), user.email()));
+                                                               .values(user.id(), user.name(), user.email())
+                                                               .onDuplicateKeyIgnore());
 
         Stream<Query> updateQueries = users.stream()
                                            .filter(user -> user.version().isPresent())
