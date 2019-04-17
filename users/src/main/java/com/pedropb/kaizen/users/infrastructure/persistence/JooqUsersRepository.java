@@ -74,7 +74,7 @@ public class JooqUsersRepository implements UsersRepository {
     private static Condition[] queryToCondition(UserQuery query) {
         return new Condition[] {
             query.idIn() != null ? USERS.ID.in(query.idIn()) : noCondition(),
-            query.nameStartWith() != null ? USERS.NAME.likeIgnoreCase(query.nameStartWith().concat("%")) : noCondition(),
+            query.nameStartsWith() != null ? USERS.NAME.likeIgnoreCase(query.nameStartsWith().concat("%")) : noCondition(),
             query.emailIn() != null
                     ? USERS.EMAIL.lower().in(query.emailIn().stream().map(String::toLowerCase).collect(Collectors.toSet()))
                     : noCondition()

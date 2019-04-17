@@ -5,22 +5,20 @@ import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 import java.util.Set;
 
-import static java.util.Collections.emptySet;
-
 @AutoValue
 public abstract class UserQuery {
 
     @Nullable
     public abstract Set<String> idIn();
     @Nullable
-    public abstract String nameStartWith();
+    public abstract String nameStartsWith();
     @Nullable
     public abstract Set<String> emailIn();
 
-    public static UserQuery create(Set<String> idIn, String nameStartWith, Set<String> emailIn) {
+    public static UserQuery create(Set<String> idIn, String nameStartsWith, Set<String> emailIn) {
         return builder()
                 .idIn(idIn)
-                .nameStartWith(nameStartWith)
+                .nameStartsWith(nameStartsWith)
                 .emailIn(emailIn)
                 .build();
     }
@@ -34,18 +32,11 @@ public abstract class UserQuery {
 
         public abstract Builder idIn(Set<String> idIn);
 
-        public abstract Builder nameStartWith(String nameStartWith);
-
         public abstract Builder emailIn(Set<String> emailIn);
 
-        public abstract UserQuery build();
+        public abstract Builder nameStartsWith(String nameStartsWith);
 
-        public static Builder create() {
-            return new AutoValue_UserQuery.Builder()
-                    .idIn(emptySet())
-                    .nameStartWith(null)
-                    .emailIn(emptySet());
-        }
+        public abstract UserQuery build();
 
     }
 }

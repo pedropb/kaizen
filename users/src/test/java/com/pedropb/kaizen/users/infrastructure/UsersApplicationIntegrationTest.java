@@ -27,9 +27,11 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 class UsersApplicationIntegrationTest {
 
@@ -93,10 +95,10 @@ class UsersApplicationIntegrationTest {
         UserData chris = createUser("Chris", "chris@gmail.com");
 
         Response response = get("/");
+
         response.then()
                 .statusCode(200)
                 .body("$", hasSize(3));
-
         assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
     }
 
@@ -117,6 +119,38 @@ class UsersApplicationIntegrationTest {
                 .statusCode(404)
                 .body("error", is(true))
                 .body("exception", is("UserNotFoundException"));
+    }
+
+    @Test
+    void get_with_id_query_param_when_users_match_returns_200_and_array_of_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData chris = createUser("Chris", "chris@gmail.com");
+
+        Response response = given().param("idIn", alice.id, bob.id).get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(2));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(alice, bob));
+        assertThat(response.as(LIST_USER_DATA), not(contains(chris)));
+    }
+
+    @Test
+    void get_with_name_query_param_when_users_match_returns_200_and_array_of_user_data() {
+        UserData alice = createUser("Alice", "alice@gmail.com");
+        UserData aline = createUser("Aline", "aline@gmail.com");
+        UserData alicia = createUser("Alicia", "alicia@gmail.com");
+        UserData bob = createUser("Bob", "bob@gmail.com");
+        UserData dalila = createUser("Dalila", "dalila@gmail.com");
+
+        Response response = given().param("nameStartsWith", "ali").get("/");
+
+        response.then()
+                .statusCode(200)
+                .body("$", hasSize(3));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(alice, alicia, aline));
+        assertThat(response.as(LIST_USER_DATA), not(containsInAnyOrder(bob, dalila)));
     }
 
     private UserData createUser(String name, String email) {

@@ -12,6 +12,8 @@ import com.pedropb.kaizen.users.domain.exceptions.UserAlreadyCreatedException;
 import com.pedropb.kaizen.users.domain.exceptions.UserNotFoundException;
 import spark.Request;
 
+import java.util.List;
+
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -31,19 +33,26 @@ public class UsersResources implements Resource {
     public void configure() {
         post("/", json((req, res) -> createUser(req)), gson::toJson);
 
-        get("/", json((req, res) -> usersService.listUsers()), gson::toJson);
-
         get("/:id", json((req, res) -> usersService.findUserById(req.params("id"))), gson::toJson);
 
-        //get with query parameter
-        //get with path parameter
+        get("/", json((req, res) -> findUsers(req)), gson::toJson);
+
         //put
+
         //delete
 
         exception(UserAlreadyCreatedException.class, exceptionJson(409));
         exception(UserNotFoundException.class, exceptionJson(404));
         exception(InvalidDtoException.class, exceptionJson(400));
         exception(RuntimeException.class, exceptionJson(500));
+    }
+
+    private List<UserData> findUsers(Request req) {
+        String[] idIn = req.queryParamsValues("idIn");
+        String nameStartsWith = req.queryParams("nameStartsWith");
+        String[] emailIn = req.queryParamsValues("emailIn");
+
+        return usersService.findUsers(idIn, nameStartsWith, emailIn);
     }
 
     private UserData createUser(Request req) {

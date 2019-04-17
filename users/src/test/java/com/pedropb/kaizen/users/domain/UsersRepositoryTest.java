@@ -63,7 +63,7 @@ public abstract class UsersRepositoryTest {
         User dalila = User.testBuilder().name("Dalila").build();
 
         repository().save(alice, alicia, bob, dalila);
-        UserQuery query = UserQuery.builder().nameStartWith("ali").build();
+        UserQuery query = UserQuery.builder().nameStartsWith("ali").build();
 
         Set<User> usersFound = new HashSet<>(repository().findUsers(query));
         assertThat(usersFound, is(Sets.newHashSet(alice, alicia)));
