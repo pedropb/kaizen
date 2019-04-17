@@ -27,9 +27,8 @@ class JooqUsersRepositoryTest extends UsersRepositoryTest {
 
     @BeforeAll
     static void setupDatabase() {
-        Flyway flyway = new Flyway();
         dataSource = PooledDataSourceFactory.create(new StubConfig());
-        flyway.setDataSource(dataSource);
+        Flyway flyway = Flyway.configure().dataSource(dataSource).schemas("KAIZEN").load();
         flyway.migrate();
 
         jooqUsersRepository = new JooqUsersRepository(dataSource);
