@@ -69,4 +69,10 @@ public class UsersService {
 
         return new UserData(updatedUser.id(), updatedUser.name(), updatedUser.email());
     }
+
+    public void deleteUserById(String id) {
+        if (!usersRepository.deleteById(id)) {
+            throw new UserNotFoundException();
+        }
+    }
 }

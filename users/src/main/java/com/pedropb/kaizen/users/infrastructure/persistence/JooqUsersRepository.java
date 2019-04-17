@@ -62,6 +62,19 @@ public class JooqUsersRepository implements UsersRepository {
         return context.batch(Stream.concat(insertQueries, updateQueries).collect(Collectors.toList())).execute();
     }
 
+    @Override
+    public int[] delete(Collection<User> users) {
+        DSLContext context = DSL.using(dataSource, SQLDialect.H2);
+
+        List<Query> deleteQueries = users.stream()
+                                         .map(user -> context.deleteFrom(USERS)
+                                                             .where(USERS.ID.eq(user.id()),
+                                                                    user.version().map(USERS.VERSION::eq).orElse(USERS.VERSION.isNull())))
+                                         .collect(Collectors.toList());
+
+        return context.batch(deleteQueries).execute();
+    }
+
     private static UsersRecord newVersion(User user) {
         return new UsersRecord(
                 user.id(),

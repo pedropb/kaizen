@@ -18,6 +18,7 @@ import spark.Request;
 import java.util.List;
 import java.util.Objects;
 
+import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -36,15 +37,15 @@ public class UsersResources implements Resource {
 
     @Override
     public void configure() {
-        post("/", json((req, res) -> createUser(req)), gson::toJson);
+        post("/", json(this::createUser), gson::toJson);
 
-        get("/:id", json((req, res) -> usersService.findUserById(req.params("id"))), gson::toJson);
+        get("/:id", json((req) -> usersService.findUserById(req.params("id"))), gson::toJson);
 
-        get("/", json((req, res) -> findUsers(req)), gson::toJson);
+        get("/", json(this::findUsers), gson::toJson);
 
-        put("/:id", json((req, res) -> updateUser(req)), gson::toJson);
+        put("/:id", json(this::updateUser), gson::toJson);
 
-        //delete
+        delete("/:id", noContent((req) -> usersService.deleteUserById(req.params("id"))), gson::toJson);
 
         exception(UserAlreadyCreatedException.class, exceptionJson(409));
         exception(UserChangedBeforeUpdateException.class, exceptionJson(409));

@@ -123,6 +123,32 @@ public abstract class UsersRepositoryTest {
         assertThat(repository().findUsers(query), is(updatedUsers));
     }
 
+    @Test
+    void delete_multiple_users_when_users_exist_and_version_matches_then_delete_and_return_ones() {
+        populateUsers();
+        List<User> users = repository().findAllUsers();
+
+        assertThat(Arrays.stream(repository().delete(users)).allMatch(i -> i==1), is(true));
+        assertThat(repository().findAllUsers(), is(Collections.emptyList()));
+    }
+
+    @Test
+    void delete_users_when_users_dont_exist_then_return_zeros() {
+        List<User> users = Arrays.asList(User.testBuilder().build(), User.testBuilder().build(), User.testBuilder().build());
+        assertThat(Arrays.stream(repository().delete(users)).allMatch(i -> i==0), is(true));
+    }
+
+    @Test
+    void delete_users_when_users_version_dont_match_then_return_zeros() {
+        populateUsers();
+        List<User> users = repository().findAllUsers();
+        List<User> updatedUsers = users.stream()
+                                       .map(user -> user.toBuilder().name(user.name() + " updated").build())
+                                       .collect(Collectors.toList());
+        assert Arrays.stream(repository().save(updatedUsers)).allMatch(i -> i == 1);
+
+        assertThat(Arrays.stream(repository().delete(users)).allMatch(i -> i==0), is(true));
+    }
 
     private List<User> populateUsers() {
         List<User> users = IntStream.range(0, 1 + new Random().nextInt(20))

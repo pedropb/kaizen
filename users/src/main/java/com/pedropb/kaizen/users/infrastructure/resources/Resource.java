@@ -10,10 +10,18 @@ import java.util.logging.Logger;
 public interface Resource {
     void configure();
 
-    default Route json(Route route) {
+    default Route json(DefaultRoute route) {
         return (req, res) -> {
           res.type("application/json");
-          return route.handle(req, res);
+          return route.handle(req);
+        };
+    }
+
+    default Route noContent(NoContentRoute route) {
+        return (req, res) -> {
+            res.status(204);
+            route.handle(req);
+            return "";
         };
     }
 

@@ -32,4 +32,12 @@ public interface UsersRepository {
     default boolean save(User user) {
         return save(Collections.singletonList(user))[0] == 1;
     }
+
+
+    default boolean deleteById(String userId) {
+        return findUserById(userId).filter(user -> delete(Collections.singletonList(user))[0] == 1).isPresent();
+
+    }
+
+    int[] delete(Collection<User> singletonList);
 }
