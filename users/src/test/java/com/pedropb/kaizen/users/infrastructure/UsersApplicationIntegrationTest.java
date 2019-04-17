@@ -87,7 +87,7 @@ class UsersApplicationIntegrationTest {
     }
 
     @Test
-    void get_when_users_exist_returns_200_and_array_with_users() {
+    void get_when_users_exist_returns_200_and_array_of_user_data() {
         UserData alice = createUser("Alice", "alice@gmail.com");
         UserData bob = createUser("Bob", "bob@gmail.com");
         UserData chris = createUser("Chris", "chris@gmail.com");
@@ -97,16 +97,16 @@ class UsersApplicationIntegrationTest {
                 .statusCode(200)
                 .body("$", hasSize(3));
 
-        assertThat(gson.fromJson(response.body().print(), LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
+        assertThat(response.as(LIST_USER_DATA), containsInAnyOrder(bob, alice, chris));
     }
 
     @Test
-    void get_with_path_param_when_user_exist_returns_200_and_user_data() {
+    void get_with_path_param_when_user_exists_returns_200_and_user_data() {
         UserData alice = createUser("Alice", "alice@gmail.com");
 
-        Response response = get("/" + alice.id);
+        Response response = get("/{id}", alice.id);
         assertThat(response.statusCode(), is(200));
-        assertThat(gson.fromJson(response.body().print(), UserData.class), is(alice));
+        assertThat(response.as(UserData.class), is(alice));
     }
 
     @Test
@@ -114,17 +114,17 @@ class UsersApplicationIntegrationTest {
         when()
                 .get("/" + UUID.randomUUID())
         .then()
-                .statusCode(404);
+                .statusCode(404)
+                .body("error", is(true))
+                .body("exception", is("UserNotFoundException"));
     }
 
     private UserData createUser(String name, String email) {
         CreateUser createUser = new CreateUser(name, email);
-        return gson.fromJson(given().body(gson.toJson(createUser))
-                                    .post("/")
-                                    .andReturn()
-                                    .body()
-                                    .print(),
-                             UserData.class);
+        return given().body(gson.toJson(createUser))
+                      .post("/")
+                      .andReturn()
+                      .as(UserData.class);
     }
 
 }
