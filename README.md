@@ -12,10 +12,10 @@ using [SparkJava](https://sparkjava.com) and [jOOQ](https://jooq.org).
 ### Getting started
 
 - `git clone https://github.com/pedropb/kaizen`
-- Unit tests: `mvn test`
-- Integration tests: `mvn verify`
-- Packaging and running: `mvn package && java -jar target/users-1.0.jar`
+- `docker build -t kaizen .`
+- `docker run -itp 4567:4567 kaizen`
 - Browse to `http://localhost:4567`
+- Should show `[]` and a UserNotFound Exception logged on the console
 
 ### Examples
 
@@ -64,4 +64,11 @@ curl -X PUT \
 ```bash
 curl -X DELETE http://localhost:4567/:id
 ```
+
+### Local development
+
+- Requirements: Java 8
+- Unit tests: `mvn test`
+- Integration tests: `mvn verify`
+- Packaging and running: `mvn package && java -jar target/users-1.0.jar`
 
